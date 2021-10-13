@@ -68,49 +68,46 @@ class UsersController extends AppController {
 		return $this->redirect(array('controller' => 'posts', 'action' => 'index'));
 	}
 	public function edit($id = null) {
-		if (!$id) {
+		if ($id === null) {
 			$this->Flash->error(__('Invalid user'));
 			return $this->redirect(array('controller' => 'posts', 'action' => 'index'));
 		}
-		debug($this->request->is(array('post', 'put')));
 
 		if ($id !== $this->Auth->user('id')) {
-			$this->Flash->error(__('Invalid user'));
-			return $this->redirect(array('controller' => 'posts', 'action' => 'index'));
+			$this->Flash->error(__('IDと一致しませんでした'));
+			return $this->redirect(array('controller' => 'user', 'action' => 'view', $id));
 		}
 
 			debug($this->request->data);
 		if ($this->request->is(array('post', 'put'))) {
-			$user = $this->User->findById($id);
-			if (!$user) {
-				$this->Flash->error(__('IDと一致しませんでした'));
-				return $this->redirect(array('controller' => 'user', 'action' => 'view', $id));
-			}
-			debug($user);
 			$uniqid = uniqid(mt_rand(), true);
 			$file = $this->request->data['User']['image'];
 			$original_filename = $file['name'];
-			$uploaded_file = $file['tmp_name'];
+			$uploaded_filename = $file['tmp_name'];
+			debug($file);
+			debug($original_filename);
 
 				//getimagesize関数で拡張子が変更されていないか判別、サイズも見れる
-			if (!getimagesize($uploaded_file)) {
-				$this->Flash->error(__('編集されたファイルです'));
-				return $this->redirect(array('action' => 'view', $id));
-			}
-						//ディレクトリにファイル保存
-			move_uploaded_file($original_filename, '../webroot/img/' . $uniqid);
-			$image = $uniqid . '.' . substr(strrchr($file['name'], '.'), 1);
-			if ($original_filename === null) {
-				$image = $this->Auth->user('image');
+			if ($original_filename != null) {
+				if (!getimagesize($uploaded_filename)) {
+					$this->Flash->error(__('編集されたファイルです'));
+					return $this->redirect(array('action' => 'view', $id));
+				}
+				move_uploaded_file($uploaded_filename, '../webroot/img/' . $uniqid);
+				$image = $uniqid . '.' . substr(strrchr($file['name'], '.'), 1);
+
+							//ディレクトリにファイル保存
+			} else {
+				$image = $this->User->findById($id)['User']['image'];
 			}
 			if ($this->request->data['User']['comment'] === null) {
-				$comment = $this->Auth->User('comment');
+				$comment = $this->User->findById($id)['User']['comment'];
 			} else {
 				$comment = $this->request->data['User']['comment'];
 			}
 			debug($image);
 			debug($comment);
-			$user = $this->User->save(
+			$user_save = $this->User->save(
 				array(
 					'User' => array(
 						'id' => $this->Auth->user('id'),
@@ -120,15 +117,19 @@ class UsersController extends AppController {
 					'fieldList' => array('image', 'comment')
 				)
 			);
+/*
+			$post = $this->Post->findById($id);
 			if (!$this->request->data) {
 				$this->request->data = $post;
 			}
-			if ($user !== false) {
-				$this->Flash->success(__('This infomation has been saved'));
+ */
+			if ($user_save) {
+				$this->Flash->error(__('編集完了しました'));
 				return $this->redirect(array('controller' => 'posts', 'action' => 'index'));
+			} else {
+				$this->Flash->error(__('編集できませんでした。再度入力してください。'));
+				return $this->redirect(array('controller' => 'users', 'action' => 'edit', $id));
 			}
-		} else {
-			$this->Flash->error(__('This information could not be saved. Please, try again.'));
 		}
 	}
 }

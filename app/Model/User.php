@@ -57,7 +57,7 @@ class User extends AppModel {
 			),
 			array(
 				'rule' => array(
-					'filesize', '<=', '5000000'
+					'fileSize', '<=', '5000000'
 				),
 				'message' => '画像サイズは5MBが上限です',
 				'allowEmpty' => true
