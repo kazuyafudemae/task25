@@ -67,6 +67,7 @@ class UsersController extends AppController {
 		$this->Flash->error(__('The user could not be deleted. Please, try again.'));
 		return $this->redirect(array('controller' => 'posts', 'action' => 'index'));
 	}
+
 	public function edit($id = null) {
 		if ($id === null) {
 			$this->Flash->error(__('Invalid user'));
