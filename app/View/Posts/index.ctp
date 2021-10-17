@@ -19,7 +19,6 @@
 <th>Created</th>
 </tr>
 
-<?php debug($auth); ?>
 <?php foreach ($posts as $post): ?>
 <tr>
 <td>

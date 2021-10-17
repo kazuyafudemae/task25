@@ -6,5 +6,5 @@
 
 <p>id: <?php echo h($user['User']['id']); ?></p>
 <p>username: <?php echo h($user['User']['username']); ?></p>
-<p>image: <?php echo ($this->Html->image(WWW_ROOT . 'files/' . $user['User']['image'], array('alt' => 'CakePHP'))); ?></p>
+<p>image: <?php echo ($this->Html->image($user['User']['image'], array('width' => '100', 'height' => '100'), array('alt' => 'CakePHP'))); ?></p>
 <p>comment: <?php echo h($user['User']['comment']); ?></p>

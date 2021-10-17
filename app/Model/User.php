@@ -43,7 +43,7 @@ class User extends AppModel {
 			)
 		),
 		'image' => array(
-			array(
+			'extension' => array(
 				'rule' => array(
 					'extension', array(
 						'jpg',
@@ -52,14 +52,7 @@ class User extends AppModel {
 						'png'
 					)
 				),
-				'message' => '画像ではありません',
-				'allowEmpty' => true
-			),
-			array(
-				'rule' => array(
-					'fileSize', '<=', '5000000'
-				),
-				'message' => '画像サイズは5MBが上限です',
+				'message' => 'file extension error',
 				'allowEmpty' => true
 			)
 		),

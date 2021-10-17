@@ -78,35 +78,33 @@ class UsersController extends AppController {
 			return $this->redirect(array('controller' => 'user', 'action' => 'view', $id));
 		}
 
-			debug($this->request->data);
+		if (!$this->request->data) {
+			$this->request->data = $this->User->findById($this->Auth->user(['id']));
+		}
+
 		if ($this->request->is(array('post', 'put'))) {
 			$uniqid = uniqid(mt_rand(), true);
 			$file = $this->request->data['User']['image'];
 			$original_filename = $file['name'];
 			$uploaded_filename = $file['tmp_name'];
-			debug($file);
-			debug($original_filename);
 
-				//getimagesize関数で拡張子が変更されていないか判別、サイズも見れる
 			if ($original_filename != null) {
 				if (!getimagesize($uploaded_filename)) {
-					$this->Flash->error(__('編集されたファイルです'));
+					$this->Flash->error(__('ファイルの形式が適しておりませんでした'));
 					return $this->redirect(array('action' => 'view', $id));
 				}
-				move_uploaded_file($uploaded_filename, '../webroot/img/' . $uniqid);
 				$image = $uniqid . '.' . substr(strrchr($file['name'], '.'), 1);
-
-							//ディレクトリにファイル保存
+				move_uploaded_file($uploaded_filename, '../webroot/img/' . $image);
 			} else {
 				$image = $this->User->findById($id)['User']['image'];
 			}
+
 			if ($this->request->data['User']['comment'] === null) {
 				$comment = $this->User->findById($id)['User']['comment'];
 			} else {
 				$comment = $this->request->data['User']['comment'];
 			}
-			debug($image);
-			debug($comment);
+
 			$user_save = $this->User->save(
 				array(
 					'User' => array(
@@ -117,18 +115,13 @@ class UsersController extends AppController {
 					'fieldList' => array('image', 'comment')
 				)
 			);
-/*
-			$post = $this->Post->findById($id);
-			if (!$this->request->data) {
-				$this->request->data = $post;
-			}
- */
+
 			if ($user_save) {
 				$this->Flash->error(__('編集完了しました'));
 				return $this->redirect(array('controller' => 'posts', 'action' => 'index'));
 			} else {
 				$this->Flash->error(__('編集できませんでした。再度入力してください。'));
-				return $this->redirect(array('controller' => 'users', 'action' => 'edit', $id));
+				return $this->redirect(array('controller' => 'users', 'action' => 'view', $id));
 			}
 		}
 	}
