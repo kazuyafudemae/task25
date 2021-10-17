@@ -126,5 +126,39 @@ class UsersController extends AppController {
 			}
 		}
 	}
+
+	public function pass_reset() {
+		if(!$this->request->is(array('post', 'put'))) {
+			$this->Flash->error(__('不正なアクセスです'));
+			return $this->redirect(array('controller' => 'post', 'action' => 'login')
+		}
+
+		$email = $this->request->data['User']['email'];
+		$pass = $this->User->findByEmail($email);
+		if ($pass) {
+			$activation_code = uniqid(mt_rand(), true);
+			$user_save = $this->User->save(
+				array(
+					'User' => array(
+						'id' => $pass['id'],
+						',
+						'comment' => $comment
+					),
+					'fieldList' => array('image', 'comment')
+				)
+			);
+
+			$cakeemail = new CakeEmail('default');
+			$cakeemail->to($email);
+			$cakeemail->subject('パスワード再設定のお知らせ');
+			$cakeemail->send('パスワードの再設定はこちらのURLからhttps://procir-study.site/Fudemae225/task24/cakephp/activate?activation_code=' . $activation_code);
+		} else {
+			$this->Flash->error(__('メールアドレスが存在しませんでした'));
+			return $this->redirect(array('controller' => 'post', 'action' => 'login')
+		}
+
+
+
+	}
 }
 
