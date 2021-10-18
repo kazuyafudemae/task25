@@ -67,6 +67,7 @@ class UsersController extends AppController {
 		$this->Flash->error(__('The user could not be deleted. Please, try again.'));
 		return $this->redirect(array('controller' => 'posts', 'action' => 'index'));
 	}
+
 	public function edit($id = null) {
 		if ($id === null) {
 			$this->Flash->error(__('Invalid user'));
@@ -83,24 +84,40 @@ class UsersController extends AppController {
 		}
 
 		if ($this->request->is(array('post', 'put'))) {
-			$uniqid = uniqid(mt_rand(), true);
+			$image = $this->User->findById($id)['User']['image'];
 			$file = $this->request->data['User']['image'];
 			$original_filename = $file['name'];
 			$uploaded_filename = $file['tmp_name'];
 
-			if ($original_filename != null) {
-				if (!getimagesize($uploaded_filename)) {
-					$this->Flash->error(__('ファイルの形式が適しておりませんでした'));
-					return $this->redirect(array('action' => 'view', $id));
+			if (!empty($original_filename)) {
+				$image = uniqid(mt_rand(), true);
+				switch (exif_imagetype($uploaded_filename)) {
+					case 1:
+						$image .= '.gif';
+						break;
+					case 2:
+						$image .= '.jpg';
+						break;
+					case 3:
+						$image .= '.png';
+						break;
+					default:
+						$image = 'error';
+						break;
 				}
-				$image = $uniqid . '.' . substr(strrchr($file['name'], '.'), 1);
-				move_uploaded_file($uploaded_filename, '../webroot/img/' . $image);
-			} else {
-				$image = $this->User->findById($id)['User']['image'];
+				if ($image !== 'error') {
+					move_uploaded_file($uploaded_filename, '../webroot/img/' . $image);
+					if (file_exists('../webroot/img/' . $this->User->findById($id)['User']['image'])) {
+						unlink('../webroot/img/' . $this->User->findById($id)['User']['image']);
+					}
+				} else {
+					$this->Flash->error(__('ファイルの形式が適していませんでした。再度アップロードしてください'));
+					return $this->redirect(array('controller' => 'users', 'action' => 'view', $id));
+				}
 			}
 
-			if ($this->request->data['User']['comment'] === null) {
-				$comment = $this->User->findById($id)['User']['comment'];
+			if (empty($this->request->data['User']['comment'])) {
+				$comment = NULL;
 			} else {
 				$comment = $this->request->data['User']['comment'];
 			}
