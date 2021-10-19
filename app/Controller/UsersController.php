@@ -146,7 +146,11 @@ class UsersController extends AppController {
 	public function pass_reset() {
 		if(!$this->request->is(array('post', 'put'))) {
 			$this->Flash->error(__('不正なアクセスです'));
+<<<<<<< HEAD
 			return $this->redirect(array('controller' => 'post', 'action' => 'login'));
+=======
+			return $this->redirect(array('controller' => 'post', 'action' => 'login')
+>>>>>>> 2d41155bb1c8473488e13ee4fc8625048178647c
 		}
 
 		$email = $this->request->data['User']['email'];
@@ -157,10 +161,17 @@ class UsersController extends AppController {
 				array(
 					'User' => array(
 						'id' => $pass['id'],
+<<<<<<< HEAD
 						'pass_reset_id' => $activation_code,
 						'pass_reset_date' => date('Y-m-d H:i:s')
 					),
 					'fieldList' => array('pass_reset_id', 'pass_reset_date')
+=======
+						',
+						'comment' => $comment
+					),
+					'fieldList' => array('image', 'comment')
+>>>>>>> 2d41155bb1c8473488e13ee4fc8625048178647c
 				)
 			);
 
@@ -170,6 +181,7 @@ class UsersController extends AppController {
 			$cakeemail->send('パスワードの再設定はこちらのURLからhttps://procir-study.site/Fudemae225/task24/cakephp/activate?activation_code=' . $activation_code);
 		} else {
 			$this->Flash->error(__('メールアドレスが存在しませんでした'));
+<<<<<<< HEAD
 			return $this->redirect(array('controller' => 'post', 'action' => 'login'));
 		}
 	}
@@ -204,6 +216,13 @@ class UsersController extends AppController {
 
 		$this->Flash->error(__('パスワードの再設定が完了しました'));
 		return $this->redirect(array('controller' => 'post', 'action' => 'index'));
+=======
+			return $this->redirect(array('controller' => 'post', 'action' => 'login')
+		}
+
+
+
+>>>>>>> 2d41155bb1c8473488e13ee4fc8625048178647c
 	}
 }
 
