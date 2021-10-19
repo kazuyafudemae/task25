@@ -142,5 +142,68 @@ class UsersController extends AppController {
 			}
 		}
 	}
+
+	public function pass_reset() {
+		if(!$this->request->is(array('post', 'put'))) {
+			$this->Flash->error(__('不正なアクセスです'));
+			return $this->redirect(array('controller' => 'post', 'action' => 'login'));
+		}
+
+		$email = $this->request->data['User']['email'];
+		$pass = $this->User->findByEmail($email);
+		if ($pass) {
+			$activation_code = uniqid(mt_rand(), true);
+			$user_save = $this->User->save(
+				array(
+					'User' => array(
+						'id' => $pass['id'],
+						'pass_reset_id' => $activation_code,
+						'pass_reset_date' => date('Y-m-d H:i:s')
+					),
+					'fieldList' => array('pass_reset_id', 'pass_reset_date')
+				)
+			);
+
+			$cakeemail = new CakeEmail('default');
+			$cakeemail->to($email);
+			$cakeemail->subject('パスワード再設定のお知らせ');
+			$cakeemail->send('パスワードの再設定はこちらのURLからhttps://procir-study.site/Fudemae225/task24/cakephp/activate?activation_code=' . $activation_code);
+		} else {
+			$this->Flash->error(__('メールアドレスが存在しませんでした'));
+			return $this->redirect(array('controller' => 'post', 'action' => 'login'));
+		}
+	}
+
+	public function activate($activation_code) {
+		$user = $this->User->findByPass_reset_id($activation_code);
+
+		if (!$user) {
+			$this->Flash->error(__('不正なアクセスです。もう一度やり直してください'));
+			return $this->redirect(array('controller' => 'post', 'action' => 'login'));
+		}
+
+		$limit_time = date('Y-m-d H:i:s', strtotime(' - 30 minute'));
+
+		if (strtotime($user['pass_reset_date']) < strtotime($limit_time)) {
+			$this->Flash->error(__('URLが無効です。もう一度やり直してください'));
+			return $this->redirect(array('controller' => 'post', 'action' => 'login'));
+		}
+
+		$data = $this->request->data['User'];
+		$user_save = $this->User->save(
+			array(
+				'User' => array(
+					'id' => $user['id'],
+					'password' => $data['password'],
+					'pass_reset_id' => NULL,
+					'pass_reset_date' => NULL
+				),
+				'fieldList' => array('password', 'pass_reset_id', 'pass_reset_date')
+			)
+		);
+
+		$this->Flash->error(__('パスワードの再設定が完了しました'));
+		return $this->redirect(array('controller' => 'post', 'action' => 'index'));
+	}
 }
 
