@@ -14,5 +14,5 @@ echo $this->Form->input('password');
 ?>
 </fieldset>
 <?php echo $this->Form->end(__('Login')); ?>
-<div><?php echo $this->Html->link('パスワードを忘れた方はこちら', array('controller' => 'users', 'action' => 'pass_reset')); ?></div>
+<div><?php echo $this->Html->link('パスワードを忘れた方はこちら', array('controller' => 'users', 'action' => 'reset')); ?></div>
 </div>
