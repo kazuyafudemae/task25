@@ -57,7 +57,7 @@ class AppController extends Controller {
 	);
 	public $helpers = array('Html', 'Form', 'Session');
 	public function beforeFilter() {
-		$this->Auth->allow('index', 'view', 'add');
+		$this->Auth->allow('index', 'view', 'add', 'reset', 'activate');
 		$this->set('auth', $this->Auth->user());
 		$this->Auth->authError = false;
 	}
